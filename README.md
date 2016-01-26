@@ -1,6 +1,6 @@
 # Bigobject output plugin for Embulk
 
-TODO: Write short description here and embulk-output-bigobject.gemspec file.
+BigObject output plugins for Embulk loads records to BigObject.
 
 ## Overview
 
@@ -11,17 +11,17 @@ TODO: Write short description here and embulk-output-bigobject.gemspec file.
 
 ## Configuration
 
-- **option1**: description (integer, required)
-- **option2**: description (string, default: `"myvalue"`)
-- **option3**: description (string, default: `null`)
+- **host**: database host name (string, required)
+- **port**: database port number (integer, default: 9090)
+- **table**: database table name (string, required)
 
 ## Example
 
 ```yaml
 out:
   type: bigobject
-  option1: example1
-  option2: example2
+    host: localhost
+    table: mytest
 ```
 
 
