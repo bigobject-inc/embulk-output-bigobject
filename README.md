@@ -20,8 +20,8 @@ BigObject output plugins for Embulk loads records to BigObject.
 ```yaml
 out:
   type: bigobject
-    host: localhost
-    table: mytest
+  host: localhost
+  table: mytest
 ```
 
 
