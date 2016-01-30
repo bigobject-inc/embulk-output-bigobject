@@ -9,6 +9,12 @@ BigObject output plugins for Embulk loads records to BigObject.
 * **Resume supported**: no
 * **Cleanup supported**: yes
 
+## Installation
+
+```
+embulk gem install embulk-output-bigobject
+```
+
 ## Configuration
 
 - **host**: database host name (string, required)
