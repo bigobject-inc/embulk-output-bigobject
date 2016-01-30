@@ -116,7 +116,7 @@ private
         end
   
         def createtbl(tbl)
-          rsp = send_stmt("CREATE TABLE #{tbl} asdf (#{change2botype(schema).join(",")})")
+          rsp = send_stmt("CREATE TABLE #{tbl}  (#{change2botype(schema).join(",")})")
           rsp["Status"] == 0 ? @@tblexist = true : false
           return @@tblexist
         end
