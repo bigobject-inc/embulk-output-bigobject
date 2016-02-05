@@ -7,7 +7,7 @@ Gem::Specification.new do |spec|
   spec.description   = "Dumps records to Bigobject."
   spec.email         = ["randyh0329@gmail.com"]
   spec.licenses      = ["MIT"]
-  spec.homepage      = "https://github.com/randyh0329/embulk-output-bigobject"
+  spec.homepage      = "https://github.com/bigobject-inc/embulk-output-bigobject"
 
   spec.files         = `git ls-files`.split("\n") + Dir["classpath/*.jar"]
   spec.test_files    = spec.files.grep(%r{^(test|spec)/})
