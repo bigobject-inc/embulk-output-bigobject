@@ -64,7 +64,7 @@ module Embulk
         
         page.each do |records|
           values = []
-          records.each do |row| values << row.to_json end
+          records.each do |row| values << "#{row}".to_json end
           data.push("(#{values.join(",")})")
         end
         @counter += data.length
