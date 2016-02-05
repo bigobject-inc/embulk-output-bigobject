@@ -1,7 +1,7 @@
 
 Gem::Specification.new do |spec|
   spec.name          = "embulk-output-bigobject"
-  spec.version       = "0.2.0"
+  spec.version       = "0.2.2"
   spec.authors       = ["randyviola"]
   spec.summary       = "Bigobject output plugin for Embulk"
   spec.description   = "Dumps records to Bigobject."
