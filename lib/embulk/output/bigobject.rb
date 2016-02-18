@@ -67,13 +67,14 @@ module Embulk
         
         page.each do |records|
           values = []
-          records.each do |row| values << "#{row}.to_json end
+          records.each do |row| values << "#{row}".to_json end
           data.push("(#{values.join(",")})")
         end
 
         @counter += data.length
         @@ttlcounter += data.length
-
+        
+        Embulk.logger.trace { "INSERT INTO #@table VALUES #{data.join(",")}" }
         rsp = self.class.send_stmt2borest("INSERT INTO #@table VALUES #{data.join(",")}")
         if rsp["Status"] == 0 then
            Embulk.logger.debug { "add #{data.length} to BigObject - #@counter | #@@ttlcounter" }
