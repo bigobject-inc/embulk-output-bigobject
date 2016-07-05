@@ -1,11 +1,11 @@
 
 Gem::Specification.new do |spec|
   spec.name          = "embulk-output-bigobject"
-  spec.version       = "0.2.8"
-  spec.authors       = ["randyviola"]
+  spec.version       = "0.3.0"
+  spec.authors       = ["cchuang"]
   spec.summary       = "Bigobject output plugin for Embulk"
   spec.description   = "Dumps records to Bigobject."
-  spec.email         = ["randyh0329@gmail.com"]
+  spec.email         = ["cchuang.tw@gmail.com"]
   spec.licenses      = ["MIT"]
   spec.homepage      = "https://github.com/bigobject-inc/embulk-output-bigobject"
 
@@ -13,9 +13,9 @@ Gem::Specification.new do |spec|
   spec.test_files    = spec.files.grep(%r{^(test|spec)/})
   spec.require_paths = ["lib"]
 
-  spec.add_dependency 'rest-client', ['~> 1.8.0']
-  spec.add_development_dependency 'rest-client', ['~> 1.8.0']
-  spec.add_development_dependency 'embulk', ['~> 0.7.10']
-  spec.add_development_dependency 'bundler', ['~> 1.0']
-  spec.add_development_dependency 'rake', ['>= 10.0']
+  spec.add_dependency 'rest-client', ['>= 1.8.0']
+  #spec.add_development_dependency 'rest-client', ['>= 1.8.0']
+  spec.add_development_dependency 'embulk', ['>= 0.8.9']
+  spec.add_development_dependency 'bundler', ['>= 1.10.6']
+  spec.add_development_dependency 'rake', ['>= 10.5.0']
 end
