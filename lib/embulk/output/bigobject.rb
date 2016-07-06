@@ -71,7 +71,7 @@ module Embulk
 
 	  def create_shared_io
 		io = TCPSocket.new @task['host'], @task['ncport']
-		#@@io = File.new "embulkout.dump", "w"
+		#io = File.new "out.dump", "w"
 		io.write "csv\x01"
 		io.puts @task['table']
 		io
@@ -105,7 +105,7 @@ module Embulk
         
         page.each do |records|
           values = []
-          records.each do |row| values << "#{row}".to_json end
+          records.each do |row| values << "\"#{row.to_s.gsub(/\"/,"\"\"")}\"" end
           #data.push("(#{values.join(",")})")
 		  safe_io_puts "#{values.join(",")}"
 		  count += 1
