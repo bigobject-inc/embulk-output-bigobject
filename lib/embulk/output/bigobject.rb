@@ -44,7 +44,8 @@ module Embulk
         if response["Status"] == 0 then # the table exists
           Embulk.logger.debug { "#{response}" }
         elsif response["Status"] == -11 then # the table does not exist
-          response = rest_exec(task['rest_uri'], "#{create_botable_stmt("#{task['table']}",schema, task['co_map'])}")
+          #response = rest_exec(task['rest_uri'], "#{create_botable_stmt("#{task['table']}",schema, task['co_map'])}")
+          response = rest_exec(task['rest_uri'], "#{create_botable_stmt("#{task['table']}",schema, task["column_options"])}")
           if response["Status"] != 0 then 
             Embulk.logger.error { "#{response}" }
             raise "Create table #{task['table']} in BigObject Failed"
@@ -149,10 +150,17 @@ module Embulk
       end
 
       def self.create_botable_stmt(tbl,schema, cos)
-		Embulk.logger.debug {"schema: #{schema}"}
-        bo_table_schema = schema.map {|column| "#{column.name} #{to_bigobject_column_type(column.type.to_s, column.format.to_s, cos[column.name])}" }.join(',')
+		val_array = Array.new
+		schema.each do |c|
+		  co = cos[c.index] || {}
+		  Embulk.logger.debug {"#{c.index}, #{c.name}, #{co}"}
+		  val_array.push "#{co["name"] || c.name} #{to_bigobject_column_type(c.type.to_s, c.format.to_s, co)}" 
+		end
+	    bo_table_schema = val_array.join(',')
+		Embulk.logger.debug {"schema (#{schema.class}): #{schema}"}
+		Embulk.logger.debug {"schema: #{bo_table_schema}"}
 		keys = Array.new
-		cos.each do |k, co|
+		cos.each do |co|
 		  keys.push co["name"] if co["is_key"] 
 		end
 		if keys.length == 0
