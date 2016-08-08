@@ -18,6 +18,7 @@ module Embulk
           "ncport"         => config.param("ncport",         :integer, :default => 9091),  # integer, optional
           "table"          => config.param("table",          :string),        # string, required
 		  "column_options" => config.param("column_options", :array,   :default => []),   
+          "payload_column_index" => config.param("payload_column_index", :integer,  :default => nil),   
         }
         
 		task
@@ -44,7 +45,6 @@ module Embulk
         if response["Status"] == 0 then # the table exists
           Embulk.logger.debug { "#{response}" }
         elsif response["Status"] == -11 then # the table does not exist
-          #response = rest_exec(task['rest_uri'], "#{create_botable_stmt("#{task['table']}",schema, task['co_map'])}")
           response = rest_exec(task['rest_uri'], "#{create_botable_stmt("#{task['table']}",schema, task["column_options"])}")
           if response["Status"] != 0 then 
             Embulk.logger.error { "#{response}" }
@@ -62,7 +62,7 @@ module Embulk
         return next_config_diff
       end
 
-	  def safe_io_puts(buff)
+	  def safe_io_write(buff)
 		@@io ||= create_shared_io
 		@@mutext ||= Mutex.new
         @@mutext.synchronize do 
@@ -97,21 +97,44 @@ module Embulk
       def close
       end
 
-      def add(page)
+      def add_csv(page)
         data = Array.new
         
-        page.each do |records|
+        page.each do |record|
           values = []
-          records.each do |row| values << "\"#{row.to_s.gsub(/\"/,"\"\"")}\"" end
-		  data.push "#{values.join(",")}"
+          record.each do |row| values << "\"#{row.to_s.gsub(/\"/,"\"\"")}\"" end
+		  data.push "#{values.join(",")}\n"
         end
 
-		safe_io_puts "#{data.join("\n")}"
+		safe_io_write "#{data.join}"
 
         @counter += data.length
         @task['ttl_counter'] += data.length
 
       end
+
+      def add_payload(page)
+        data = Array.new
+		pindex = @task['payload_column_index']
+
+        page.each do |record|
+		  data.push "#{record[pindex]}\n"
+        end
+
+		safe_io_write "#{data.join}"
+
+        @counter += data.length
+        @task['ttl_counter'] += data.length
+
+      end
+
+	  def add(page)
+		  if (@task['payload_column_index'])
+		  	add_payload(page)
+		  else
+		  	add_csv(page)
+		  end
+	  end
 
       def finish
       end
