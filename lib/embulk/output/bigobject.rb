@@ -66,7 +66,7 @@ module Embulk
 		@@io ||= create_shared_io
 		@@mutext ||= Mutex.new
         @@mutext.synchronize do 
-		  @@io.puts buff
+		  @@io.write buff
 		end
 	  end
 
@@ -98,22 +98,18 @@ module Embulk
       end
 
       def add(page)
-        # output code:
-        
-        #data = Array.new
-        values = Array.new
-		count = 0
+        data = Array.new
         
         page.each do |records|
           values = []
           records.each do |row| values << "\"#{row.to_s.gsub(/\"/,"\"\"")}\"" end
-          #data.push("(#{values.join(",")})")
-		  safe_io_puts "#{values.join(",")}"
-		  count += 1
+		  data.push "#{values.join(",")}"
         end
 
-        @counter += count
-        @task['ttl_counter'] += count
+		safe_io_puts "#{data.join("\n")}"
+
+        @counter += data.length
+        @task['ttl_counter'] += data.length
 
       end
 
