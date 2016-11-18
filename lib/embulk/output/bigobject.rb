@@ -170,9 +170,9 @@ module Embulk
 		  keys.push co["name"] if co["is_key"] 
 		end
 		if keys.length == 0
-          "CREATE TABLE #{tbl} #{rowcol} (#{bo_table_schema})"
+          "CREATE #{rowcol} TABLE #{tbl} (#{bo_table_schema})"
 		else
-          "CREATE TABLE #{tbl} #{rowcol} (#{bo_table_schema} KEY(#{keys.join(',')}))"
+          "CREATE #{rowcol} TABLE #{tbl} (#{bo_table_schema} KEY(#{keys.join(',')}))"
 		end
       end
 
