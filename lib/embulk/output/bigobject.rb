@@ -17,6 +17,7 @@ module Embulk
           "restport"       => config.param("restport",       :integer, :default => 9090),  # integer, optional
           "ncport"         => config.param("ncport",         :integer, :default => 9091),  # integer, optional
           "table"          => config.param("table",          :string),        # string, required
+		  "rowcolumn"	   => config.param("rowcolumn",      :string,  :default => "ROW"), # string, optional
 		  "column_options" => config.param("column_options", :array,   :default => []),   
           "payload_column_index" => config.param("payload_column_index", :integer,  :default => nil),   
         }
@@ -45,7 +46,7 @@ module Embulk
         if response["Status"] == 0 then # the table exists
           Embulk.logger.debug { "#{response}" }
         elsif response["Status"] == -11 then # the table does not exist
-          response = rest_exec(task['rest_uri'], "#{create_botable_stmt("#{task['table']}",schema, task["column_options"])}")
+          response = rest_exec(task['rest_uri'], "#{create_botable_stmt("#{task['table']}", "#{task['rowcolumn']}", schema, task["column_options"])}")
           if response["Status"] != 0 then 
             Embulk.logger.error { "#{response}" }
             raise "Create table #{task['table']} in BigObject Failed"
@@ -97,29 +98,23 @@ module Embulk
       def close
       end
 
-      def add_csv(page)
-        data = Array.new
-        
-        page.each do |record|
-          values = []
-          record.each do |row| values << "\"#{row.to_s.gsub(/\"/,"\"\"")}\"" end
-		  data.push "#{values.join(",")}\n"
-        end
-
-		safe_io_write "#{data.join}"
-
-        @counter += data.length
-        @task['ttl_counter'] += data.length
-
-      end
-
-      def add_payload(page)
+      def add(page)
         data = Array.new
 		pindex = @task['payload_column_index']
+		Embulk.logger.debug "#{pindex}"
 
-        page.each do |record|
-		  data.push "#{record[pindex]}\n"
-        end
+		if pindex
+		  page.each do |record|
+		    data.push "#{record[pindex]}\n"
+			Embulk.logger.debug "#{record[pindex]}\n"
+		  end
+		else
+          page.each do |record|
+            values = []
+            record.each do |row| values << "\"#{row.to_s.gsub(/\"/,"\"\"")}\"" end
+		    data.push "#{values.join(",")}\n"
+          end
+		end
 
 		safe_io_write "#{data.join}"
 
@@ -127,14 +122,6 @@ module Embulk
         @task['ttl_counter'] += data.length
 
       end
-
-	  def add(page)
-		  if (@task['payload_column_index'])
-		  	add_payload(page)
-		  else
-		  	add_csv(page)
-		  end
-	  end
 
       def finish
       end
@@ -168,7 +155,7 @@ module Embulk
         end
       end
 
-      def self.create_botable_stmt(tbl,schema, cos)
+      def self.create_botable_stmt(tbl,rowcol,schema, cos)
 		val_array = Array.new
 		schema.each do |c|
 		  co = cos[c.index] || {}
@@ -176,16 +163,16 @@ module Embulk
 		  val_array.push "#{co["name"] || c.name} #{to_bigobject_column_type(c.type.to_s, c.format.to_s, co)}" 
 		end
 	    bo_table_schema = val_array.join(',')
-		Embulk.logger.debug {"schema (#{schema.class}): #{schema}"}
-		Embulk.logger.debug {"schema: #{bo_table_schema}"}
+		#Embulk.logger.debug {"schema (#{schema.class}): #{schema}"}
+		#Embulk.logger.debug {"schema: #{bo_table_schema}"}
 		keys = Array.new
 		cos.each do |co|
 		  keys.push co["name"] if co["is_key"] 
 		end
 		if keys.length == 0
-          "CREATE TABLE #{tbl} (#{bo_table_schema})"
+          "CREATE TABLE #{tbl} #{rowcol} (#{bo_table_schema})"
 		else
-          "CREATE TABLE #{tbl} (#{bo_table_schema} KEY(#{keys.join(',')}))"
+          "CREATE TABLE #{tbl} #{rowcol} (#{bo_table_schema} KEY(#{keys.join(',')}))"
 		end
       end
 
