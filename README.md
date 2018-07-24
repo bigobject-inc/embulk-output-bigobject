@@ -19,7 +19,7 @@ embulk gem install embulk-output-bigobject
 
 - **host**: database host name (string, default: localhost)
 - **restport**: database port number (integer, default: 9090)
-- **ncport**: database port number (integer, default: 9090)
+- **ncport**: database port number (integer, default: 9091)
 - **table**: database table name (string, required)
 
 ## Example
